@@ -29,42 +29,78 @@ const getProjects = async (): Promise<Project[]> => {
 
 
 const ProjectsPage = async () => {
-
     const projects = await getProjects();
 
     return (
-        <main className="min-h-screen bg-gray-100 p-8">
+        <main className="min-h-screen bg-gray-50 p-6 sm:p-8">
             <div className="mx-auto max-w-6xl">
-                <h1 className="text-3xl font-bold text-gray-900">
-                    Projects
-                </h1>
 
-                <Link href="/projects/new">Create Project</Link>
+                {/* Header */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-                {/* <p className="mt-2 text-gray-600">
-                    Manage your development projects.
-                </p>
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                            Projects
+                        </h1>
 
-                <div className="mt-8 rounded-xl bg-white p-8 shadow">
-                    <p className="text-gray-500">
-                        No projects yet.
-                    </p>
-                </div> */}
+                        <p className="mt-1 text-sm text-gray-500">
+                            Manage your development projects.
+                        </p>
+                    </div>
 
-                <section>
-                    {
-                        projects.map((project) => (
+                    <Link
+                        href="/projects/new"
+                        className="inline-flex w-fit items-center rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+                    >
+                        + Create Project
+                    </Link>
 
-                            <ProjectCard
-                                key={project._id}
-                                project={project}
-                            />
-                        ))
-                    }
+                </div>
+
+                {/* Projects */}
+                <section className="mt-8">
+
+                    {projects.length === 0 ? (
+
+                        <div className="rounded-xl border border-gray-200 bg-white p-10 text-center shadow-sm">
+
+                            <h2 className="text-lg font-semibold text-gray-900">
+                                No projects yet
+                            </h2>
+
+                            <p className="mt-2 text-sm text-gray-500">
+                                Create your first project to get started.
+                            </p>
+
+                            <Link
+                                href="/projects/new"
+                                className="mt-5 inline-flex rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
+                            >
+                                Create Project
+                            </Link>
+
+                        </div>
+
+                    ) : (
+
+                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+                            {projects.map((project) => (
+                                <ProjectCard
+                                    key={project._id}
+                                    project={project}
+                                />
+                            ))}
+
+                        </div>
+
+                    )}
+
                 </section>
+
             </div>
         </main>
-    )
-}
+    );
+};
 
 export default ProjectsPage;
