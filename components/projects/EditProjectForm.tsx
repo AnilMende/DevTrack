@@ -2,17 +2,25 @@
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { createProjectSchema } from "@/lib/validations/project";
+import { updateProjectSchema } from "@/lib/validations/project";
 
-type CreateProjectFormData = {
-    name: string;
-    description: string;
-    status: "ACTIVE" | "COMPLETED" | "ARCHIVED";
+
+import type { Project } from "@/types";
+
+type EditProjectFormData = z.infer<
+    typeof updateProjectSchema
+>;
+
+type EditProjectFormProps = {
+    project: Project;
 };
 
-const CreateProjectForm = () => {
+const EditProjectForm = ({
+    project,
+}: EditProjectFormProps) => {
 
     const router = useRouter();
 
@@ -21,30 +29,34 @@ const CreateProjectForm = () => {
         handleSubmit,
         formState: {
             errors,
-            isSubmitting
+            isSubmitting,
         },
-    } = useForm<CreateProjectFormData>({
-        resolver: zodResolver(createProjectSchema),
+    } = useForm<EditProjectFormData>({
+        resolver: zodResolver(updateProjectSchema),
 
         defaultValues: {
-            name: "",
-            description: "",
-            status: "ACTIVE",
+            name: project.name,
+            description: project.description,
+            status: project.status,
         },
     });
 
+    const onSubmit = async (
+        data: EditProjectFormData
+    ) => {
 
-    const onSubmit = async (data: CreateProjectFormData) => {
+        const response = await fetch(
+            `/api/projects/${project._id}`,
+            {
+                method: "PATCH",
 
-        const response = await fetch("/api/projects", {
-            method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
 
-            headers: {
-                "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify(data),
-        });
+                body: JSON.stringify(data),
+            }
+        );
 
         const result = await response.json();
 
@@ -53,10 +65,9 @@ const CreateProjectForm = () => {
             return;
         }
 
-        router.push("/projects");
+        router.push(`/projects/${project._id}`);
         router.refresh();
     };
-
 
     return (
         <form
@@ -64,7 +75,7 @@ const CreateProjectForm = () => {
             className="space-y-6"
         >
 
-            {/* Project Name */}
+            {/* Name */}
             <div>
 
                 <label
@@ -75,11 +86,10 @@ const CreateProjectForm = () => {
                 </label>
 
                 <input
-                    type="text"
                     id="name"
-                    placeholder="e.g. AI Resume Builder"
+                    type="text"
                     {...register("name")}
-                    className={`mt-2 block w-full rounded-lg border px-4 py-2.5 text-sm outline-none transition placeholder:text-gray-400 text-gray-950 focus:ring-2 ${errors.name
+                    className={`mt-2 block w-full rounded-lg border px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 ${errors.name
                         ? "border-red-400 focus:ring-red-100"
                         : "border-gray-300 focus:border-gray-900 focus:ring-gray-100"
                         }`}
@@ -92,7 +102,6 @@ const CreateProjectForm = () => {
                 )}
 
             </div>
-
 
             {/* Description */}
             <div>
@@ -107,9 +116,8 @@ const CreateProjectForm = () => {
                 <textarea
                     id="description"
                     rows={5}
-                    placeholder="Describe what this project is about..."
                     {...register("description")}
-                    className={`mt-2 block w-full resize-none rounded-lg border px-4 py-2.5 text-sm outline-none transition placeholder:text-gray-400 text-gray-950 focus:ring-2 ${errors.description
+                    className={`mt-2 block w-full resize-none rounded-lg border px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:ring-2 ${errors.description
                         ? "border-red-400 focus:ring-red-100"
                         : "border-gray-300 focus:border-gray-900 focus:ring-gray-100"
                         }`}
@@ -122,7 +130,6 @@ const CreateProjectForm = () => {
                 )}
 
             </div>
-
 
             {/* Status */}
             <div>
@@ -139,7 +146,6 @@ const CreateProjectForm = () => {
                     {...register("status")}
                     className="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-100"
                 >
-
                     <option value="ACTIVE">
                         Active
                     </option>
@@ -151,7 +157,6 @@ const CreateProjectForm = () => {
                     <option value="ARCHIVED">
                         Archived
                     </option>
-
                 </select>
 
                 {errors.status && (
@@ -162,7 +167,6 @@ const CreateProjectForm = () => {
 
             </div>
 
-
             {/* Submit */}
             <div className="flex justify-end border-t border-gray-100 pt-6">
 
@@ -172,8 +176,8 @@ const CreateProjectForm = () => {
                     className="rounded-lg bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {isSubmitting
-                        ? "Creating..."
-                        : "Create Project"
+                        ? "Saving..."
+                        : "Save Changes"
                     }
                 </button>
 
@@ -183,4 +187,4 @@ const CreateProjectForm = () => {
     );
 };
 
-export default CreateProjectForm;
+export default EditProjectForm;
