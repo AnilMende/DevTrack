@@ -1,74 +1,44 @@
-import { connectToDatabase } from "@/lib/mongodb";
+import Link from "next/link";
+import DashboardStats from "@/components/dashboard/DashboardStats";
 
-type Project = {
-    _id: string;
-    name: string;
-    description: string;
-    status: "ACTIVE" | "COMPLETED" | "ARCHIVED";
-    createdAt: string
+const HomePage = () => {
+
+    return (
+        <main className="min-h-screen bg-gray-50 px-6 py-10 sm:px-8">
+
+            <div className="mx-auto max-w-6xl">
+
+                {/* Header */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div>
+
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                            DevTrack
+                        </h1>
+
+                        <p className="mt-2 text-gray-600">
+                            Track your projects and tasks in one place.
+                        </p>
+
+                    </div>
+
+                    <Link
+                        href="/projects"
+                        className="w-fit rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+                    >
+                        View Projects
+                    </Link>
+
+                </div>
+
+                {/* Statistics */}
+                <DashboardStats />
+
+            </div>
+
+        </main>
+    );
 };
 
-const getProjects = async (): Promise<Project[]> => {
-
-    const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/projects`,
-        {
-            cache: "no-store",
-        }
-    );
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch projects");
-    }
-
-    const result = await response.json();
-
-    return result.data;
-}
-
-const Home = async () => {
-
-  await connectToDatabase();
-
-  const projects = await getProjects();
-
-  
-  return (
-    <main className="min-h-screen bg-gray-100 p-8">
-      <div className="mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold text-gray-900">
-          DevTrack
-        </h1>
-
-        <p className="mt-2 text-gray-600">
-          Manage your development projects and tasks.
-        </p>
-
-        <div className="mt-8 grid gap-6 md:grid-cols-4">
-          <div className="rounded-xl bg-white p-6 shadow">
-            <p className="text-sm text-gray-700">Projects</p>
-            <p className="mt-2 text-3xl font-bold text-gray-800">0</p>
-          </div>
-
-          <div className="rounded-xl bg-white p-6 shadow">
-            <p className="text-sm text-gray-700">Tasks</p>
-            <p className="mt-2 text-3xl font-bold text-gray-800">0</p>
-          </div>
-
-          <div className="rounded-xl bg-white p-6 shadow">
-            <p className="text-sm text-gray-700">Completed</p>
-            <p className="mt-2 text-3xl font-bold text-gray-800">0</p>
-          </div>
-
-          <div className="rounded-xl bg-white p-6 shadow">
-            <p className="text-sm text-gray-700">Pending</p>
-            <p className="mt-2 text-3xl font-bold text-gray-800">0</p>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-
-}
-
-export default Home;
+export default HomePage;
